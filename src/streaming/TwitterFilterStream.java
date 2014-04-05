@@ -1,11 +1,12 @@
 package streaming; /**
  * Created by phuong on 3/13/14.
  */
-import features.TwitterFeatureExtraction;
+import analysis.TwitterTrustAnalyzer;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterFilterStream{
+    private TwitterTrustAnalyzer analyzer = new TwitterTrustAnalyzer();
     public static void main(String[] args) throws TwitterException {
         String keywords[] = {"MH370"};
         TwitterFilterStream filter = new TwitterFilterStream();
@@ -26,20 +27,17 @@ public class TwitterFilterStream{
         cb.setOAuthAccessToken(accessToken);
         cb.setOAuthAccessTokenSecret(accessTokenSecret);
 
+
         TwitterStream twitterStream = new TwitterStreamFactory(cb.build()).getInstance();
         StatusListener listener = new StatusListener() {
 
+            /**
+             * Function to process each tweet from Twitter stream
+             *
+             * @param status
+             */
             public void onStatus(Status status) {
-                User user = status.getUser();
-//                System.out.println(user.getId() + "\t" + user.getScreenName() + "\t" + user.getFriendsCount() + "\t"
-//                        + user.getFollowersCount() + "\t" + user.getStatusesCount() + "\t"
-//                        + user.getCreatedAt() + "\t" + user.isVerified() + "\t"
-//                        + status.getId() + "\t" + status.getCreatedAt() + "\t" + "\t" + status.isRetweet() + "\t"
-//                        + status.getRetweetCount() + "\t" + status.getFavoriteCount() + "\t" + status.getInReplyToStatusId() + "\t"
-//                        + status.getInReplyToUserId() + "\t" + status.getLang() + "\t" + status.getText());
-                if (!status.getLang().equals("en")) return;
-                TwitterFeatureExtraction extractor = new TwitterFeatureExtraction();
-                System.out.println(extractor.extractOnlineFeatures(status));
+                analyzer.process(status);
             }
 
             public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
@@ -72,12 +70,4 @@ public class TwitterFilterStream{
         twitterStream.filter(fq);
     }
 
-    private String parseStatusText(String status) {
-        // Remove new line, tab characters
-        String parsedStr = status.replaceAll("[\t\n\r]", "");
-        // Remove double spaces
-        parsedStr = parsedStr.replaceAll("\\s+", " ");
-
-        return parsedStr;
-    }
 }

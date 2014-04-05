@@ -1,5 +1,7 @@
-package features;
+package analysis;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Properties;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
@@ -13,6 +15,12 @@ import edu.stanford.nlp.util.CoreMap;
 public class SentimentAnalyzer {
 
     public int findSentiment(String line) {
+        // Set custom error output
+        PrintStream err = System.err;
+        System.setErr(new PrintStream(new OutputStream() {
+            public void write(int b) {
+            }
+        }));
 
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
@@ -33,21 +41,23 @@ public class SentimentAnalyzer {
             }
         }
 
+        // Revert back to default error output
+        System.setErr(err);
         return mainSentiment;
     }
 
     private String toCss(int sentiment) {
         switch (sentiment) {
         case 0:
-            return "alert alert-danger-0";
+            return "alert-danger-0";
         case 1:
-            return "alert alert-danger-1";
+            return "alert-danger-1";
         case 2:
-            return "alert alert-warning-2";
+            return "alert-warning-2";
         case 3:
-            return "alert alert-success-3";
+            return "alert-success-3";
         case 4:
-            return "alert alert-success-4";
+            return "alert-success-4";
         default:
             return "";
         }
@@ -55,6 +65,6 @@ public class SentimentAnalyzer {
 
     public static void main(String[] args) {
         SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer();
-        System.out.println(sentimentAnalyzer.toCss(sentimentAnalyzer.findSentiment("the wea")));
+        System.out.println(sentimentAnalyzer.toCss(sentimentAnalyzer.findSentiment("the weather is so good!")));
     }
 }

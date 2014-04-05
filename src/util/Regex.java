@@ -1,5 +1,5 @@
 
-package com.twitter;
+package util;
 
 import java.util.regex.*;
 

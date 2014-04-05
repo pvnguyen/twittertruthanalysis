@@ -1,6 +1,4 @@
-package com.twitter;
-
-import com.twitter.Extractor.Entity;
+package util;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,11 +28,11 @@ public class Autolink {
   public static final String DEFAULT_INVISIBLE_TAG_ATTRS = "style='position:absolute;left:-9999px;'";
 
   public static interface LinkAttributeModifier {
-    public void modify(Entity entity, Map<String, String> attributes);
+    public void modify(Extractor.Entity entity, Map<String, String> attributes);
   };
 
   public static interface LinkTextModifier {
-    public CharSequence modify(Entity entity, CharSequence text);
+    public CharSequence modify(Extractor.Entity entity, CharSequence text);
   }
 
   protected String urlClass = null;
@@ -106,7 +104,7 @@ public class Autolink {
     return sb.toString();
   }
 
-  public void linkToText(Entity entity, CharSequence text, Map<String, String> attributes, StringBuilder builder) {
+  public void linkToText(Extractor.Entity entity, CharSequence text, Map<String, String> attributes, StringBuilder builder) {
     if (noFollow) {
       attributes.put("rel", "nofollow");
     }
@@ -124,7 +122,7 @@ public class Autolink {
     builder.append(">").append(text).append("</a>");
   }
 
-  public void linkToTextWithSymbol(Entity entity, CharSequence symbol, CharSequence text, Map<String, String> attributes, StringBuilder builder) {
+  public void linkToTextWithSymbol(Extractor.Entity entity, CharSequence symbol, CharSequence text, Map<String, String> attributes, StringBuilder builder) {
     CharSequence taggedSymbol = symbolTag == null || symbolTag.isEmpty() ? symbol : String.format("<%s>%s</%s>", symbolTag, symbol, symbolTag);
     text = escapeHTML(text);
     CharSequence taggedText = textWithSymbolTag == null || textWithSymbolTag.isEmpty() ? text : String.format("<%s>%s</%s>", textWithSymbolTag, text, textWithSymbolTag);
@@ -139,7 +137,7 @@ public class Autolink {
     }
   }
 
-  public void linkToHashtag(Entity entity, String text, StringBuilder builder) {
+  public void linkToHashtag(Extractor.Entity entity, String text, StringBuilder builder) {
     // Get the original hash char from text as it could be a full-width char.
     CharSequence hashChar = text.subSequence(entity.getStart(), entity.getStart() + 1);
     CharSequence hashtag = entity.getValue();
@@ -157,7 +155,7 @@ public class Autolink {
     linkToTextWithSymbol(entity, hashChar, hashtag, attrs, builder);
   }
 
-  public void linkToCashtag(Entity entity, String text, StringBuilder builder) {
+  public void linkToCashtag(Extractor.Entity entity, String text, StringBuilder builder) {
     CharSequence cashtag = entity.getValue();
 
     Map<String, String> attrs = new LinkedHashMap<String, String>();
@@ -168,7 +166,7 @@ public class Autolink {
     linkToTextWithSymbol(entity, "$", cashtag, attrs, builder);
   }
 
-  public void linkToMentionAndList(Entity entity, String text, StringBuilder builder) {
+  public void linkToMentionAndList(Extractor.Entity entity, String text, StringBuilder builder) {
     String mention = entity.getValue();
     // Get the original at char from text as it could be a full-width char.
     CharSequence atChar = text.subSequence(entity.getStart(), entity.getStart() + 1);
@@ -186,7 +184,7 @@ public class Autolink {
     linkToTextWithSymbol(entity, atChar, mention, attrs, builder);
   }
 
-  public void linkToURL(Entity entity, String text, StringBuilder builder) {
+  public void linkToURL(Extractor.Entity entity, String text, StringBuilder builder) {
     CharSequence url = entity.getValue();
     CharSequence linkText = escapeHTML(url);
 
@@ -266,11 +264,11 @@ public class Autolink {
     linkToText(entity, linkText, attrs, builder);
   }
 
-  public String autoLinkEntities(String text, List<Entity> entities) {
+  public String autoLinkEntities(String text, List<Extractor.Entity> entities) {
     StringBuilder builder = new StringBuilder(text.length() * 2);
     int beginIndex = 0;
 
-    for (Entity entity : entities) {
+    for (Extractor.Entity entity : entities) {
       builder.append(text.subSequence(beginIndex, entity.start));
 
       switch(entity.type) {
@@ -304,7 +302,7 @@ public class Autolink {
     text = escapeBrackets(text);
 
     // extract entities
-    List<Entity> entities = extractor.extractEntitiesWithIndices(text);
+    List<Extractor.Entity> entities = extractor.extractEntitiesWithIndices(text);
     return autoLinkEntities(text, entities);
   }
 

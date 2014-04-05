@@ -1,4 +1,4 @@
-package com.twitter;
+package util;
 
 import java.text.Normalizer;
 
