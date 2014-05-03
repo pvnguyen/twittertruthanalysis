@@ -13,6 +13,9 @@
     <orderEntry type="library" name="org.twitter4j:twitter4j-stream:4.0.1" level="project" />
     <orderEntry type="library" name="net.sf.jung:jung-io:2.0.1" level="project" />
     <orderEntry type="library" name="net.sf.jung:jung-graph-impl:2.0.1" level="project" />
+    <orderEntry type="library" name="net.sf.jung:jung-visualization:2.0.1" level="project" />
+    <orderEntry type="library" name="net.sf.jung:jung-jai:2.0.1" level="project" />
+    <orderEntry type="library" name="nz.ac.waikato.cms.weka:weka-stable:3.6.11" level="project" />
   </component>
 </module>
 

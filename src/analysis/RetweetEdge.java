@@ -11,6 +11,7 @@ public class RetweetEdge {
     }
 
     public String toString() {
-        return "E-" + weight;
+        return "";
+
     }
 }

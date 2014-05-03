@@ -4,10 +4,17 @@ package streaming; /**
 import analysis.TwitterTrustAnalyzer;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
+import util.TwitterTrend;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class TwitterFilterStream{
     private TwitterTrustAnalyzer analyzer = new TwitterTrustAnalyzer();
-    public static void main(String[] args) throws TwitterException {
+    private TwitterTrend twitterUtil = new TwitterTrend();
+    private FileWriter outStream = null;
+
+    public static void main(String[] args) throws TwitterException, IOException {
         String keywords[] = {"MH370"};
         TwitterFilterStream filter = new TwitterFilterStream();
 
@@ -18,6 +25,15 @@ public class TwitterFilterStream{
                 keywords);
     }
 
+    public TwitterFilterStream() throws IOException {
+        outStream = new FileWriter("data/mh370.json");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void filterPublicStream(String consumerKey, String consumerSecret,
                                     String accessToken, String accessTokenSecret, String [] keywords) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -26,6 +42,7 @@ public class TwitterFilterStream{
         cb.setOAuthConsumerSecret(consumerSecret);
         cb.setOAuthAccessToken(accessToken);
         cb.setOAuthAccessTokenSecret(accessTokenSecret);
+        cb.setJSONStoreEnabled(true);
 
 
         TwitterStream twitterStream = new TwitterStreamFactory(cb.build()).getInstance();
@@ -37,7 +54,13 @@ public class TwitterFilterStream{
              * @param status
              */
             public void onStatus(Status status) {
-                analyzer.process(status);
+                // analyzer.process(status);
+                // System.out.println(DataObjectFactory.getRawJSON(status));
+                try {
+                    outStream.write(TwitterObjectFactory.getRawJSON(status) + "\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {

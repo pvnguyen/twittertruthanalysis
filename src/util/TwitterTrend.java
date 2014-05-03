@@ -2,17 +2,20 @@ package util;
 
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
+import twitter4j.json.DataObjectFactory;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
  * Created by phuong on 3/22/14.
  */
-public class TwitterUtil {
+public class TwitterTrend {
 
     public static void main(String [] args) throws TwitterException {
-        TwitterUtil util = new TwitterUtil();
+        TwitterTrend util = new TwitterTrend();
         util.getCurrentTrend("sH1W4DQITPKCuNW0kxJg",
                 "sN3ZoyISpJ5GLvSBCEzmnZFtpUsyVYaKpZcpsiILrw",
                 "23776707-GcaPAHrqcgFZxAdvjHGuN9l8JdJz7aejY0AHXGNS2",
@@ -24,7 +27,7 @@ public class TwitterUtil {
                 "CEjcDlkg7aRqNsQ16dJ3JqeEtxuTyJZIkSIzNF0m6cwbb", 1);
     }
 
-    private HashMap<String, Integer> getCurrentTrend(String consumerKey, String consumerSecret,
+    public HashMap<String, Integer> getCurrentTrend(String consumerKey, String consumerSecret,
                                     String accessToken, String accessTokenSecret) throws TwitterException {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true);
@@ -45,7 +48,7 @@ public class TwitterUtil {
         return currentTrends;
     }
 
-    private ArrayList<String> getTrend(String consumerKey, String consumerSecret,
+    public ArrayList<String> getTrend(String consumerKey, String consumerSecret,
                                                      String accessToken, String accessTokenSecret, int woeid) throws TwitterException {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true);
@@ -64,4 +67,5 @@ public class TwitterUtil {
 
         return trendAr;
     }
+
 }

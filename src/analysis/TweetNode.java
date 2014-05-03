@@ -20,7 +20,7 @@ public class TweetNode {
     }
 
     public String toString() {
-        return "V-" + id;
+        return " ";
     }
 
     public boolean equals(Object obj) {
