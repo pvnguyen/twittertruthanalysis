@@ -3,11 +3,12 @@ package analysis;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
+import twitter4j.json.DataObjectFactory;
 import util.Extractor;
 import twitter4j.Status;
 import twitter4j.User;
 import weka.classifiers.Classifier;
-import weka.classifiers.trees.J48;
+import weka.classifiers.functions.SMO;
 import weka.core.*;
 
 import java.io.*;
@@ -16,16 +17,17 @@ import java.util.*;
 /**
  * Created by phuong on 4/4/14.
  */
-public class TwitterTrustAnalyzer {
+public class TwitterTruthAnalyzer {
     private Extractor extractor;
     private SentimentAnalyzer sentimenter;
     private Map<Long, DirectedSparseGraph<TweetNode, RetweetEdge>> graphs;
     private Classifier classifier;
 
-    public TwitterTrustAnalyzer() {
+    public TwitterTruthAnalyzer() {
         extractor = new Extractor();
         sentimenter = new SentimentAnalyzer();
         graphs = new HashMap<Long, DirectedSparseGraph<TweetNode, RetweetEdge>>();
+        classifier = new WekaAdaboostJ48();
     }
 
     /**
@@ -82,9 +84,16 @@ public class TwitterTrustAnalyzer {
         String strLine = "";
 
         while ((strLine = br.readLine()) != null) {
-            Status status = TwitterObjectFactory.createStatus(strLine);
+            try {
+            if (strLine.equals("")) continue;
+            Status status = DataObjectFactory.createStatus(strLine);
             if (!status.getLang().equals("en")) continue;
-            fw.write(extractOnlineFeatures(status) + "\n");
+            String featureStr = extractOnlineFeatures(status);
+            fw.write( featureStr + "\n");
+            System.out.println(featureStr);
+            } catch (Exception ex) {
+                System.out.println();
+            }
         }
         fw.close();
         br.close();
@@ -189,14 +198,39 @@ public class TwitterTrustAnalyzer {
     }
 
     public void classifyJSONFile(String inputFile) throws Exception {
+        int trueCount = 0;
+        int falseCount = 0;
         BufferedReader br = new BufferedReader(new FileReader(inputFile));
         String strLine = "";
         RetweetGraphAnalyzer analyzer = new RetweetGraphAnalyzer();
 
         while ((strLine = br.readLine()) != null) {
             Status status = TwitterObjectFactory.createStatus(strLine);
-            System.out.println(classify(status) + "\t" + status.getText());
+            double classIndex = classifyStatus(status);
+            if (classIndex == 0.0) falseCount++;
+            else trueCount++;
+            System.out.println(classIndex + "\t" + status.getText());
         }
+        System.out.println("False: " + falseCount + ". True: " + trueCount);
+    }
+
+    public void classifyARFFFile(String inputFile) throws Exception {
+        BufferedReader reader = new BufferedReader(
+                new FileReader(inputFile));
+        Instances testingData = new Instances(reader);
+        reader.close();
+        // setting class attribute
+        testingData.setClassIndex(testingData.numAttributes() - 1);
+        int trueCount = 0;
+        int falseCount = 0;
+
+        for (int i=0; i < testingData.numInstances(); i++) {
+            double classIndex = classifyInstance(testingData.instance(i));
+            if (classIndex == 0.0) falseCount++;
+            else trueCount++;
+        }
+
+        System.out.println("False: " + falseCount + ". True: " + trueCount);
     }
 
     public void buildClassifierFromTraining(String trainingFile) throws Exception {
@@ -207,8 +241,8 @@ public class TwitterTrustAnalyzer {
         // setting class attribute
         trainingData.setClassIndex(trainingData.numAttributes() - 1);
 
-        classifier = new J48();
-        ((J48)classifier).setUnpruned(true);
+        classifier = new SMO();
+        System.out.println(classifier.toString());
         classifier.buildClassifier(trainingData);
     }
 
@@ -217,7 +251,11 @@ public class TwitterTrustAnalyzer {
                 .read(modelFile);
     }
 
-    public double classify(Status status) throws Exception {
+    public double classifyInstance(Instance instance) throws Exception {
+        return classifier.classifyInstance(instance);
+    }
+
+    public double classifyStatus(Status status) throws Exception {
         User user = status.getUser();
         FastVector atts = new FastVector();
 
@@ -277,12 +315,13 @@ public class TwitterTrustAnalyzer {
     }
 
     public static void main(String [] args) throws Exception{
-        TwitterTrustAnalyzer analyzer = new TwitterTrustAnalyzer();
-        // analyzer.extractFeaturesFromJSON("data/forthoodshooting.json", "output/forthoodshooting.features");
-//        analyzer.extractFeaturesFromJSON("data/mh370.json.1", "output/mh370.features");
+        TwitterTruthAnalyzer analyzer = new TwitterTruthAnalyzer();
+        analyzer.extractFeaturesFromJSON("data/mh370.json.140416", "output/mh370_140416.features");
+        // analyzer.extractFeaturesFromJSON("data/mh370.json.1", "output/mh370.features");
         // analyzer.processJSONFile("data/mh370.json.1");
 //        analyzer.buildClassifierFromTraining("output/mh370.arff");
-        analyzer.buildClassifierFromModel("output/mh370_smo.model");
-        analyzer.classifyJSONFile("data/mh370.json");
+//        analyzer.buildClassifierFromModel("output/mh370_adaboost_j48.model");
+//        analyzer.classifyJSONFile("data/mh370.json.1k");
+//        analyzer.classifyARFFFile("output/forthoodshooting.arff");
     }
 }

@@ -1,7 +1,7 @@
 package streaming; /**
  * Created by phuong on 3/13/14.
  */
-import analysis.TwitterTrustAnalyzer;
+import analysis.TwitterTruthAnalyzer;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 import util.TwitterTrend;
@@ -10,12 +10,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class TwitterFilterStream{
-    private TwitterTrustAnalyzer analyzer = new TwitterTrustAnalyzer();
+    private TwitterTruthAnalyzer analyzer = new TwitterTruthAnalyzer();
     private TwitterTrend twitterUtil = new TwitterTrend();
     private FileWriter outStream = null;
 
     public static void main(String[] args) throws TwitterException, IOException {
-        String keywords[] = {"MH370"};
+        String keywords[] = {"Ukraine"};
         TwitterFilterStream filter = new TwitterFilterStream();
 
         filter.filterPublicStream("sH1W4DQITPKCuNW0kxJg",
@@ -26,7 +26,7 @@ public class TwitterFilterStream{
     }
 
     public TwitterFilterStream() throws IOException {
-        outStream = new FileWriter("data/mh370.json");
+        outStream = new FileWriter("data/Ukraine.json");
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
