@@ -1,9 +1,12 @@
 Twitter Truth Analysis
 ====================
 
-Analyzing trustworthiness of tweets on Twitter. With the plethora of information streaming in via Twitter, it is
-crucial to determine the credibility of tweets in a real-time. This motivates use to use machine learning and 
-stream processing to build a prototype for a system that can assess credibility to an incoming Twitter stream. 
+Analyzing trustworthiness of tweets on Twitter. 
+
+With the plethora of information streaming in via Twitter, it is crucial to determine the credibility of tweets 
+in a real-time. This motivates use to use machine learning and stream processing to build a prototype for a 
+system that can assess credibility to an incoming Twitter stream. 
+
 We have tested our credibility model against trending topics on Twitter, e.g., `#MH370` and `#FortHoodShooting`,
 and it shows encouraging results in detecting fraudulent tweets.
 
